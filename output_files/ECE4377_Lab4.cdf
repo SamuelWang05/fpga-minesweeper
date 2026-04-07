@@ -4,7 +4,7 @@ JedecChain;
 	DefaultMfr(6E);
 
 	P ActionCode(Cfg)
-		Device PartName(EP4CE115F29) Path("C:/Users/samue/Downloads/2026 Spring/FPGA/Project 3/lab-3-samdrew-long/output_files/") File("ECE4377_Lab3.sof") MfrSpec(OpMask(1));
+		Device PartName(EP4CE115F29) Path("C:/Users/andre/Downloads/lab-4-samdrew-long/output_files/") File("ECE4377_Lab4.sof") MfrSpec(OpMask(1));
 
 ChainEnd;
 
