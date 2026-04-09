@@ -1111,7 +1111,6 @@ set_instance_assignment -name IO_STANDARD LVDS -to HSMC_CLKOUT_N1
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 set_global_assignment -name VHDL_FILE ps2_ctrl.vhd
 set_global_assignment -name VHDL_FILE mine_init.vhd
 set_global_assignment -name VHDL_FILE cell_calc.vhd
@@ -1123,3 +1122,4 @@ set_global_assignment -name VHDL_FILE VGA_SYNC.VHD
 set_global_assignment -name VHDL_FILE BALL.VHD
 set_global_assignment -name VHDL_FILE DE2_115_TOP.vhd
 set_global_assignment -name QIP_FILE video_pll.qip
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
