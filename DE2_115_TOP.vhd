@@ -1,11 +1,5 @@
 --
--- DE2-115 top-level module (entity declaration)
---
--- William H. Robinson, Vanderbilt University University
---   william.h.robinson@vanderbilt.edu
---
--- Updated from the DE2 top-level module created by 
--- Stephen A. Edwards, Columbia University, sedwards@cs.columbia.edu
+-- DE2-115 top-level module
 --
 
 library ieee;
@@ -14,165 +8,298 @@ use ieee.numeric_std.all;
 
 entity DE2_115_TOP is
   generic (
-    TICKS_PER_SECOND : natural := 50_000_000  -- default for 50 MHz CLOCK_50
+    TICKS_PER_SECOND : natural := 50_000_000
   );
   port (
-    -- Clocks
-    
-    CLOCK_50 	: in std_logic;                     -- 50 MHz
-    CLOCK2_50 	: in std_logic;                     -- 50 MHz
-    CLOCK3_50 	: in std_logic;                     -- 50 MHz
-    SMA_CLKIN  : in std_logic;                     -- External Clock Input
-    SMA_CLKOUT : out std_logic;                    -- External Clock Output
+    CLOCK_50    : in    std_logic;
+    CLOCK2_50   : in    std_logic;
+    CLOCK3_50   : in    std_logic;
+    SMA_CLKIN   : in    std_logic;
+    SMA_CLKOUT  : out   std_logic;
 
-    -- Buttons and switches
-    
-    KEY : in std_logic_vector(3 downto 0);         -- Push buttons
-    SW  : in std_logic_vector(17 downto 0);        -- DPDT switches
+    KEY         : in    std_logic_vector(3 downto 0);
+    SW          : in    std_logic_vector(17 downto 0);
 
-    -- LED displays
+    HEX0        : out   std_logic_vector(6 downto 0);
+    HEX1        : out   std_logic_vector(6 downto 0);
+    HEX2        : out   std_logic_vector(6 downto 0);
+    HEX3        : out   std_logic_vector(6 downto 0);
+    HEX4        : out   std_logic_vector(6 downto 0);
+    HEX5        : out   std_logic_vector(6 downto 0);
+    HEX6        : out   std_logic_vector(6 downto 0);
+    HEX7        : out   std_logic_vector(6 downto 0);
+    LEDG        : out   std_logic_vector(8 downto 0);
+    LEDR        : out   std_logic_vector(17 downto 0);
 
-    HEX0 : out std_logic_vector(6 downto 0);       -- 7-segment display (active low)
-    HEX1 : out std_logic_vector(6 downto 0);       -- 7-segment display (active low)
-    HEX2 : out std_logic_vector(6 downto 0);       -- 7-segment display (active low)
-    HEX3 : out std_logic_vector(6 downto 0);       -- 7-segment display (active low)
-    HEX4 : out std_logic_vector(6 downto 0);       -- 7-segment display (active low)
-    HEX5 : out std_logic_vector(6 downto 0);       -- 7-segment display (active low)
-    HEX6 : out std_logic_vector(6 downto 0);       -- 7-segment display (active low)
-    HEX7 : out std_logic_vector(6 downto 0);       -- 7-segment display (active low)
-    LEDG : out std_logic_vector(8 downto 0);       -- Green LEDs (active high)
-    LEDR : out std_logic_vector(17 downto 0);      -- Red LEDs (active high)
+    UART_CTS    : out   std_logic;
+    UART_RTS    : in    std_logic;
+    UART_RXD    : in    std_logic;
+    UART_TXD    : out   std_logic;
 
-    -- RS-232 interface
+    LCD_BLON    : out   std_logic;
+    LCD_EN      : out   std_logic;
+    LCD_ON      : out   std_logic;
+    LCD_RS      : out   std_logic;
+    LCD_RW      : out   std_logic;
+    LCD_DATA    : inout std_logic_vector(7 downto 0);
 
-    UART_CTS : out std_logic;                      -- UART Clear to Send   
-    UART_RTS : in std_logic;                       -- UART Request to Send   
-    UART_RXD : in std_logic;                       -- UART Receiver
-    UART_TXD : out std_logic;                      -- UART Transmitter   
+    PS2_CLK     : inout std_logic;
+    PS2_DAT     : inout std_logic;
+    PS2_CLK2    : inout std_logic;
+    PS2_DAT2    : inout std_logic;
 
-    -- 16 X 2 LCD Module
-    
-    LCD_BLON : out std_logic;      							-- Back Light ON/OFF
-    LCD_EN   : out std_logic;      							-- Enable
-    LCD_ON   : out std_logic;      							-- Power ON/OFF
-    LCD_RS   : out std_logic;	   							-- Command/Data Select, 0 = Command, 1 = Data
-    LCD_RW   : out std_logic; 	   						-- Read/Write Select, 0 = Write, 1 = Read
-    LCD_DATA : inout std_logic_vector(7 downto 0); 	-- Data bus 8 bits
+    VGA_BLANK_N : out   std_logic;
+    VGA_CLK     : out   std_logic;
+    VGA_HS      : out   std_logic;
+    VGA_SYNC_N  : out   std_logic;
+    VGA_VS      : out   std_logic;
+    VGA_R       : out   std_logic_vector(7 downto 0);
+    VGA_G       : out   std_logic_vector(7 downto 0);
+    VGA_B       : out   std_logic_vector(7 downto 0);
 
-    -- PS/2 ports
+    SRAM_ADDR   : out   unsigned(19 downto 0);
+    SRAM_DQ     : inout unsigned(15 downto 0);
+    SRAM_CE_N   : out   std_logic;
+    SRAM_LB_N   : out   std_logic;
+    SRAM_OE_N   : out   std_logic;
+    SRAM_UB_N   : out   std_logic;
+    SRAM_WE_N   : out   std_logic;
 
-    PS2_CLK : inout std_logic;     -- Clock
-    PS2_DAT : inout std_logic;     -- Data
-
-    PS2_CLK2 : inout std_logic;    -- Clock
-    PS2_DAT2 : inout std_logic;    -- Data
-
-    -- VGA output
-    
-    VGA_BLANK_N : out std_logic;            -- BLANK
-    VGA_CLK 	 : out std_logic;            -- Clock
-    VGA_HS 		 : out std_logic;            -- H_SYNC
-    VGA_SYNC_N  : out std_logic;            -- SYNC
-    VGA_VS 		 : out std_logic;            -- V_SYNC
-    VGA_R 		 : out std_logic_vector(7 downto 0); -- Red[9:0]
-    VGA_G 		 : out std_logic_vector(7 downto 0); -- Green[9:0]
-    VGA_B 		 : out std_logic_vector(7 downto 0); -- Blue[9:0]
-
-    -- SRAM
-    
-    SRAM_ADDR : out unsigned(19 downto 0);         -- Address bus 20 Bits
-    SRAM_DQ   : inout unsigned(15 downto 0);       -- Data bus 16 Bits
-    SRAM_CE_N : out std_logic;                     -- Chip Enable
-    SRAM_LB_N : out std_logic;                     -- Low-byte Data Mask 
-    SRAM_OE_N : out std_logic;                     -- Output Enable
-    SRAM_UB_N : out std_logic;                     -- High-byte Data Mask 
-    SRAM_WE_N : out std_logic;                     -- Write Enable
-
-    -- Audio CODEC
-    
-    AUD_ADCDAT 	: in std_logic;               -- ADC Data
-    AUD_ADCLRCK 	: inout std_logic;            -- ADC LR Clock
-    AUD_BCLK 		: inout std_logic;            -- Bit-Stream Clock
-    AUD_DACDAT 	: out std_logic;              -- DAC Data
-    AUD_DACLRCK 	: inout std_logic;            -- DAC LR Clock
-    AUD_XCK 		: out std_logic               -- Chip Clock
-    
-    );
-  
+    AUD_ADCDAT  : in    std_logic;
+    AUD_ADCLRCK : inout std_logic;
+    AUD_BCLK    : inout std_logic;
+    AUD_DACDAT  : out   std_logic;
+    AUD_DACLRCK : inout std_logic;
+    AUD_XCK     : out   std_logic
+  );
 end DE2_115_TOP;
 
--- Architecture body 
--- 		Describes the functionality or internal implementation of the entity
+architecture structural of DE2_115_TOP is
 
-architecture structural OF DE2_115_TOP IS
-component VGA_SYNC_module
+    component VGA_SYNC_module
+        port (
+            clock_50Mhz                      : in  std_logic;
+            red, green, blue                 : in  std_logic_vector(7 downto 0);
+            red_out, green_out, blue_out     : out std_logic_vector(7 downto 0);
+            horiz_sync_out, vert_sync_out,
+            video_on, pixel_clock            : out std_logic;
+            pixel_row, pixel_column          : out std_logic_vector(10 downto 0)
+        );
+    end component;
 
-	port(	clock_50Mhz		: IN	STD_LOGIC;
-	red, green, blue : IN STD_LOGIC_VECTOR(7 downto 0);
-			red_out, green_out, blue_out : OUT STD_LOGIC_VECTOR(7 downto 0);
-			horiz_sync_out, vert_sync_out, video_on, pixel_clock	: OUT	STD_LOGIC;
-			pixel_row, pixel_column: OUT STD_LOGIC_VECTOR(10 DOWNTO 0));
+    component PS2_CTRL
+        port (
+            clk, reset                         : in  std_logic;
+            PS2_CLK                            : in  std_logic;
+            PS2_DAT                            : in  std_logic;
+            move_up, move_dn, move_lt, move_rt : out std_logic;
+            reveal, flag, game_reset           : out std_logic
+        );
+    end component;
 
-END COMPONENT;
+    component MINE_INIT
+        port (
+            clk      : in  std_logic;
+            reset    : in  std_logic;
+            done     : out std_logic;
+            mine_map : out std_logic_vector(99 downto 0)
+        );
+    end component;
 
-COMPONENT ball
+    component CELL_CALC
+        port (
+            mine_map   : in  std_logic_vector(99  downto 0);
+            adj_counts : out std_logic_vector(399 downto 0)
+        );
+    end component;
 
-   PORT(pixel_row, pixel_column		: IN std_logic_vector(10 DOWNTO 0);
-        Red,Green,Blue 				: OUT std_logic_vector(7 downto 0);
-        Vert_sync	: IN std_logic);
-       
+    component GAME_FSM
+        port (
+            clk, reset, init_done              : in  std_logic;
+            mine_map                           : in  std_logic_vector(99  downto 0);
+            adj_counts                         : in  std_logic_vector(399 downto 0);
+            move_up, move_dn, move_lt, move_rt : in  std_logic;
+            reveal, flag                       : in  std_logic;
+            cell_state                         : out std_logic_vector(199 downto 0);
+            cursor_row, cursor_col             : out unsigned(3 downto 0);
+            game_over, game_won                : out std_logic
+        );
+    end component;
 
-END COMPONENT;
+    component RGB_MUX
+        port (
+            pixel_clk  : in  std_logic;
+            pixel_col  : in  std_logic_vector(10 downto 0);
+            pixel_row  : in  std_logic_vector(10 downto 0);
+            video_on   : in  std_logic;
+            cell_state : in  std_logic_vector(199 downto 0);
+            adj_counts : in  std_logic_vector(399 downto 0);
+            cursor_row : in  unsigned(3 downto 0);
+            cursor_col : in  unsigned(3 downto 0);
+            game_over  : in  std_logic;
+            game_won   : in  std_logic;
+            red        : out std_logic_vector(7 downto 0);
+            green      : out std_logic_vector(7 downto 0);
+            blue       : out std_logic_vector(7 downto 0)
+        );
+    end component;
 
-SIGNAL red_int : STD_LOGIC_VECTOR(7 downto 0);
-SIGNAL green_int : STD_LOGIC_VECTOR(7 downto 0);
-SIGNAL blue_int : STD_LOGIC_VECTOR(7 downto 0);
-SIGNAL vga_r_int : STD_LOGIC_VECTOR(7 downto 0);
-SIGNAL vga_g_int : STD_LOGIC_VECTOR(7 downto 0);
-SIGNAL vga_b_int : STD_LOGIC_VECTOR(7 downto 0);
-SIGNAL video_on_int : STD_LOGIC;
-SIGNAL vert_sync_int : STD_LOGIC;
-SIGNAL horiz_sync_int : STD_LOGIC; 
-SIGNAL pixel_clock_int : STD_LOGIC;
-SIGNAL pixel_row_int :STD_LOGIC_VECTOR(10 DOWNTO 0); 
-SIGNAL pixel_column_int :STD_LOGIC_VECTOR(10 DOWNTO 0); 
+    signal sys_reset  : std_logic;
+    signal game_reset : std_logic;
 
+    signal red_int    : std_logic_vector(7 downto 0);
+    signal green_int  : std_logic_vector(7 downto 0);
+    signal blue_int   : std_logic_vector(7 downto 0);
+    signal pixel_clk  : std_logic;
+    signal video_on   : std_logic;
+    signal pixel_row  : std_logic_vector(10 downto 0);
+    signal pixel_col  : std_logic_vector(10 downto 0);
 
-BEGIN
+    signal mine_map   : std_logic_vector(99  downto 0);
+    signal adj_counts : std_logic_vector(399 downto 0);
+    signal cell_state : std_logic_vector(199 downto 0);
+    signal cursor_row : unsigned(3 downto 0);
+    signal cursor_col : unsigned(3 downto 0);
 
-	VGA_HS <= horiz_sync_int;
-	VGA_VS <= vert_sync_int;
-	VGA_R <= vga_r_int;
-	VGA_G <= vga_g_int;
-	VGA_B <= vga_b_int;
-	VGA_SYNC_N <= '1';
-	LEDR(0) <= vert_sync_int;
+    signal init_done  : std_logic;
+    signal game_over  : std_logic;
+    signal game_won   : std_logic;
 
-	U1: VGA_SYNC_module PORT MAP
-		(clock_50Mhz		=>	CLOCK_50,
-		 red					=>	red_int,
-		 green				=>	green_int,	
-		 blue					=>	blue_int,
-		 red_out				=>	vga_r_int,
-		 green_out			=>	vga_g_int,
-		 blue_out			=>	vga_b_int,
-		 horiz_sync_out	=>	horiz_sync_int,
-		 vert_sync_out		=>	vert_sync_int,
-		 video_on			=>	VGA_BLANK_N,
-		 pixel_clock		=>	VGA_CLK,
-		 pixel_row			=>	pixel_row_int,
-		 pixel_column		=>	pixel_column_int
-		);
+    signal move_up    : std_logic;
+    signal move_dn    : std_logic;
+    signal move_lt    : std_logic;
+    signal move_rt    : std_logic;
+    signal reveal     : std_logic;
+    signal flag_key   : std_logic;
+    signal kbd_reset  : std_logic;
 
-	U2: ball PORT MAP
-		(pixel_row		=> pixel_row_int,
-		 pixel_column	=> pixel_column_int,
-		 Red				=> red_int,
-		 Green			=> green_int,
-		 Blue				=> blue_int,
-		 Vert_sync		=> vert_sync_int
-		);
-		
+begin
 
-END structural;
+    -- Reset
+    sys_reset  <= not KEY(0);
+    game_reset <= sys_reset or kbd_reset;
 
+    -- VGA outputs from internal signals
+    VGA_CLK     <= pixel_clk;
+    VGA_BLANK_N <= video_on;
+    VGA_SYNC_N  <= '1';
+
+    -- Tie off unused outputs
+    SMA_CLKOUT  <= '0';
+    HEX0        <= (others => '1');
+    HEX1        <= (others => '1');
+    HEX2        <= (others => '1');
+    HEX3        <= (others => '1');
+    HEX4        <= (others => '1');
+    HEX5        <= (others => '1');
+    HEX6        <= (others => '1');
+    HEX7        <= (others => '1');
+    UART_CTS    <= '0';
+    UART_TXD    <= '0';
+    LCD_BLON    <= '0';
+    LCD_EN      <= '0';
+    LCD_ON      <= '0';
+    LCD_RS      <= '0';
+    LCD_RW      <= '0';
+    LCD_DATA    <= (others => 'Z');
+    SRAM_ADDR   <= (others => '0');
+    SRAM_DQ     <= (others => 'Z');
+    SRAM_CE_N   <= '1';
+    SRAM_LB_N   <= '1';
+    SRAM_OE_N   <= '1';
+    SRAM_UB_N   <= '1';
+    SRAM_WE_N   <= '1';
+    AUD_DACDAT  <= '0';
+    AUD_XCK     <= '0';
+
+    -- Status LEDs
+    LEDR(0)           <= game_over;
+    LEDG(0)           <= game_won;
+    LEDG(1)           <= init_done;
+    LEDR(17 downto 1) <= (others => '0');
+    LEDG(8  downto 2) <= (others => '0');
+
+    U1 : VGA_SYNC_module
+        port map (
+            clock_50Mhz    => CLOCK_50,
+            red            => red_int,
+            green          => green_int,
+            blue           => blue_int,
+            red_out        => VGA_R,
+            green_out      => VGA_G,
+            blue_out       => VGA_B,
+            horiz_sync_out => VGA_HS,
+            vert_sync_out  => VGA_VS,
+            video_on       => video_on,
+            pixel_clock    => pixel_clk,
+            pixel_row      => pixel_row,
+            pixel_column   => pixel_col
+        );
+
+    U2 : PS2_CTRL
+        port map (
+            clk        => CLOCK_50,
+            reset      => sys_reset,
+            PS2_CLK    => PS2_CLK,
+            PS2_DAT    => PS2_DAT,
+            move_up    => move_up,
+            move_dn    => move_dn,
+            move_lt    => move_lt,
+            move_rt    => move_rt,
+            reveal     => reveal,
+            flag       => flag_key,
+            game_reset => kbd_reset
+        );
+
+    U3 : MINE_INIT
+        port map (
+            clk      => CLOCK_50,
+            reset    => game_reset,
+            done     => init_done,
+            mine_map => mine_map
+        );
+
+    U4 : CELL_CALC
+        port map (
+            mine_map   => mine_map,
+            adj_counts => adj_counts
+        );
+
+    U5 : GAME_FSM
+        port map (
+            clk        => CLOCK_50,
+            reset      => game_reset,
+            init_done  => init_done,
+            mine_map   => mine_map,
+            adj_counts => adj_counts,
+            move_up    => move_up,
+            move_dn    => move_dn,
+            move_lt    => move_lt,
+            move_rt    => move_rt,
+            reveal     => reveal,
+            flag       => flag_key,
+            cell_state => cell_state,
+            cursor_row => cursor_row,
+            cursor_col => cursor_col,
+            game_over  => game_over,
+            game_won   => game_won
+        );
+
+    U6 : RGB_MUX
+        port map (
+            pixel_clk  => pixel_clk,
+            pixel_col  => pixel_col,
+            pixel_row  => pixel_row,
+            video_on   => video_on,
+            cell_state => cell_state,
+            adj_counts => adj_counts,
+            cursor_row => cursor_row,
+            cursor_col => cursor_col,
+            game_over  => game_over,
+            game_won   => game_won,
+            red        => red_int,
+            green      => green_int,
+            blue       => blue_int
+        );
+
+end structural;
