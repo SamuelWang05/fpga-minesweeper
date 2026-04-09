@@ -7,3 +7,5 @@ ECE 4377: FPGA Final Project - Minesweeper
 3. Figure out who is working on what
 4. Implement + test out individual components
 5. Test full project
+
+[Minesweeper Block.pdf](https://github.com/user-attachments/files/26614105/Minesweeper.Block.pdf)
