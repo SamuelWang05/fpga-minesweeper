@@ -17,9 +17,10 @@ end GAME_FSM;
 
 architecture skeleton of GAME_FSM is
 begin
-    cell_state <= (others => '0'); -- All cells hidden ("00")
-    cursor_row <= "0000";
-    cursor_col <= "0000";
+    --cell_state <= (others => 'A'); -- All cells hidden ("00")
+	 cell_state <= x"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"; -- All cells revealed ("10")
+    cursor_row <= "0001";
+    cursor_col <= "0001";
     game_over  <= '0';
     game_won   <= '0';
 end skeleton;

@@ -12,6 +12,6 @@ end MINE_INIT;
 
 architecture skeleton of MINE_INIT is
 begin
-    done <= '1'; -- Pretend initialization is finished immediately
-    mine_map <= (others => '0'); -- No mines for now
+    mine_map(17 downto 0) <= (others => '0'); -- First 18 tiles are empty
+    mine_map(99 downto 18) <= (others => '1'); -- All other tiles have mines
 end skeleton;
