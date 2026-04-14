@@ -150,12 +150,14 @@ architecture structural of DE2_115_TOP is
             TICKS_PER_SECOND : natural := 50_000_000
         );
         port (
-            clk     : in  std_logic;
-            reset   : in  std_logic;
-            stop    : in  std_logic;
-            hours   : out unsigned(7 downto 0);
-            minutes : out unsigned(7 downto 0);
-            seconds : out unsigned(7 downto 0)
+            clk       : in  std_logic;
+            reset     : in  std_logic;
+            game_over : in  std_logic;
+            game_won  : in  std_logic;
+            hours     : out unsigned(7 downto 0);
+            minutes   : out unsigned(7 downto 0);
+            seconds   : out unsigned(7 downto 0);
+            high_score : out unsigned(16 downto 0)
         );
     end component;
 
@@ -196,10 +198,10 @@ architecture structural of DE2_115_TOP is
     signal kbd_reset  : std_logic;
 
     -- Timer signals
-    signal timer_stop    : std_logic;
     signal timer_hours   : unsigned(7 downto 0);
     signal timer_minutes : unsigned(7 downto 0);
     signal timer_seconds : unsigned(7 downto 0);
+    signal best_seconds  : unsigned(16 downto 0); -- for high score tracking
 
     -- NEW: Random seed signal
     signal random_seed : std_logic_vector(6 downto 0);
@@ -224,8 +226,7 @@ begin
         end if;
     end process;
 
-    -- Timer stops on win or loss
-    timer_stop <= game_over or game_won;
+
 
     -- VGA outputs from internal signals
     VGA_CLK     <= pixel_clk;
@@ -352,10 +353,12 @@ begin
         port map (
             clk     => CLOCK_50,
             reset   => game_reset,
-            stop    => timer_stop,
+            game_over => game_over,
+            game_won  => game_won,
             hours   => timer_hours,
             minutes => timer_minutes,
-            seconds => timer_seconds
+            seconds => timer_seconds,
+            high_score => best_seconds
         );
 
     -- HEX displays: HH:MM:SS across HEX7..HEX2
