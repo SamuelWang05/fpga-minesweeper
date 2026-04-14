@@ -16,31 +16,50 @@ entity GAME_FSM is
 end GAME_FSM;
 
 architecture skeleton of GAME_FSM is
-    signal row, col : unsigned(3 downto 0) := (others => '0');
+    signal row, col       : unsigned(3 downto 0) := (others => '0');
+    signal cell_state_int : std_logic_vector(199 downto 0) := (others => '0');
 begin
 
-    --cell_state <= (others => 'A'); -- All cells hidden ("00")
-	 cell_state <= x"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"; -- All cells revealed ("10")
+    cell_state <= cell_state_int;
     cursor_row <= row;
     cursor_col <= col;
     game_over  <= '0';
     game_won   <= '0';
 
-    cursor_proc : process(clk)
+    main_proc : process(clk)
+        variable cell_idx : integer range 0 to 99;
     begin
-    if rising_edge(clk) then
-        if reset = '1' then
-            row <= "0000";
-            col <= "0000";
-        elsif move_up = '1' then
-            if row > 0 then row <= row - 1; end if;
-        elsif move_dn = '1' then
-            if row < 9 then row <= row + 1; end if;
-        elsif move_lt = '1' then
-            if col > 0 then col <= col - 1; end if;
-        elsif move_rt = '1' then
-            if col < 9 then col <= col + 1; end if;
+        if rising_edge(clk) then
+            if reset = '1' then
+                row           <= "0000";
+                col           <= "0000";
+                cell_state_int <= (others => '0');  -- All HIDDEN
+
+            elsif init_done = '1' then
+
+                -- Cursor movement
+                if move_up = '1' then
+                    if row > 0 then row <= row - 1; end if;
+                elsif move_dn = '1' then
+                    if row < 9 then row <= row + 1; end if;
+                elsif move_lt = '1' then
+                    if col > 0 then col <= col - 1; end if;
+                elsif move_rt = '1' then
+                    if col < 9 then col <= col + 1; end if;
+
+                -- Flag toggle
+                elsif flag = '1' then
+                    cell_idx := to_integer(row) * 10 + to_integer(col);
+                    if cell_state_int(cell_idx*2+1 downto cell_idx*2) = "00" then
+                        cell_state_int(cell_idx*2+1 downto cell_idx*2) <= "01";  -- HIDDEN -> FLAGGED
+                    elsif cell_state_int(cell_idx*2+1 downto cell_idx*2) = "01" then
+                        cell_state_int(cell_idx*2+1 downto cell_idx*2) <= "00";  -- FLAGGED -> HIDDEN
+                    end if;
+                    -- Do nothing if REVEALED ("10")
+
+                end if;
+            end if;
         end if;
-    end if;
-end process;
+    end process;
+
 end skeleton;
