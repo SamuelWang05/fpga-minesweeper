@@ -101,6 +101,7 @@ architecture structural of DE2_115_TOP is
         port (
             clk      : in  std_logic;
             reset    : in  std_logic;
+            seed     : in  std_logic_vector(6 downto 0); -- NEW: Seed port
             done     : out std_logic;
             mine_map : out std_logic_vector(99 downto 0)
         );
@@ -158,7 +159,6 @@ architecture structural of DE2_115_TOP is
         );
     end component;
 
-    -- FIX: Changed name from SEG7_CODER to SEG7_DECODER to match port maps and entity file
     component SEG7_DECODER
         port (
             digit : in  unsigned(3 downto 0);
@@ -201,11 +201,28 @@ architecture structural of DE2_115_TOP is
     signal timer_minutes : unsigned(5 downto 0);
     signal timer_seconds : unsigned(5 downto 0);
 
+    -- NEW: Random seed signal
+    signal random_seed : std_logic_vector(6 downto 0);
+
 begin
 
     -- Reset
     sys_reset  <= not KEY(0);
     game_reset <= sys_reset or kbd_reset;
+
+    -- NEW: Free running counter for randomness
+    process(CLOCK_50)
+        variable counter : unsigned(6 downto 0) := (others => '0');
+    begin
+        if rising_edge(CLOCK_50) then
+            counter := counter + 1;
+            -- Ensure seed is never zero (LFSR lockup)
+            if counter = 0 then 
+                counter := "0000001"; 
+            end if;
+            random_seed <= std_logic_vector(counter);
+        end if;
+    end process;
 
     -- Timer stops on win or loss
     timer_stop <= game_over or game_won;
@@ -280,6 +297,7 @@ begin
         port map (
             clk      => CLOCK_50,
             reset    => game_reset,
+            seed     => random_seed, -- NEW: Pass the high-speed seed
             done     => init_done,
             mine_map => mine_map
         );
@@ -341,32 +359,26 @@ begin
         );
 
     -- HEX displays: HH:MM:SS across HEX7..HEX2
-    -- Seconds units (4 bits)
     U8 : SEG7_DECODER port map (
         digit => timer_seconds(3 downto 0),
         seg   => HEX2
     );
-    -- Seconds tens (2 bits + "00" padding = 4 bits)
     U9 : SEG7_DECODER port map (
         digit => "00" & timer_seconds(5 downto 4),
         seg   => HEX3
     );
-    -- Minutes units (4 bits)
     U10 : SEG7_DECODER port map (
         digit => timer_minutes(3 downto 0),
         seg   => HEX4
     );
-    -- Minutes tens (2 bits + "00" padding = 4 bits)
     U11 : SEG7_DECODER port map (
         digit => "00" & timer_minutes(5 downto 4),
         seg   => HEX5
     );
-    -- Hours units (4 bits)
     U12 : SEG7_DECODER port map (
         digit => timer_hours(3 downto 0),
         seg   => HEX6
     );
-    -- Hours tens (1 bit + "000" padding = 4 bits)
     U13 : SEG7_DECODER port map (
         digit => "000" & timer_hours(4 downto 4),
         seg   => HEX7
