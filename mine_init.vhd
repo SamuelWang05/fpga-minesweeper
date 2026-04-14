@@ -12,7 +12,7 @@ entity MINE_INIT is
 end MINE_INIT;
 
 architecture behavioral of MINE_INIT is
-    signal lfsr_reg : std_logic_vector(6 downto 0) := "1010101"; -- Seed (cannot be all zeros)
+    signal lfsr_reg : std_logic_vector(6 downto 0) := "1011110"; -- Seed (cannot be all zeros)
     signal mines_placed : integer range 0 to 10 := 0;
     signal internal_map : std_logic_vector(99 downto 0);
 begin
@@ -24,7 +24,7 @@ begin
         if reset = '1' then
             internal_map <= (others => '0');
             mines_placed <= 0;
-            lfsr_reg <= "1010101"; -- Reset to seed
+            lfsr_reg <= "1011110"; -- Reset to seed
             done <= '0';
         elsif rising_edge(clk) then
             if mines_placed < 10 then

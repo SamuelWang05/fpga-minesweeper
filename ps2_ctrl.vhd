@@ -82,7 +82,7 @@ begin
                     bit_count <= 0;
 
                     if ps2_dat_s = '1' and parity_ok = '1' then
-                        scan_code  <= shift_reg(8 downto 1);
+                        scan_code  <= shift_reg(9 downto 2);
                         byte_ready <= '1';
                     end if;
                 end if;
@@ -90,9 +90,9 @@ begin
         end if;
     end process;
 
-    parity_ok <= shift_reg(1) xor shift_reg(2) xor shift_reg(3) xor
-                 shift_reg(4) xor shift_reg(5) xor shift_reg(6) xor
-                 shift_reg(7) xor shift_reg(8) xor shift_reg(9);
+    parity_ok <= shift_reg(2) xor shift_reg(3) xor shift_reg(4) xor
+                 shift_reg(5) xor shift_reg(6) xor shift_reg(7) xor
+                 shift_reg(8) xor shift_reg(9) xor shift_reg(10);
 
     -- -------------------------------------------------------
     -- Decode scan codes ? game outputs
