@@ -153,9 +153,9 @@ architecture structural of DE2_115_TOP is
             clk     : in  std_logic;
             reset   : in  std_logic;
             stop    : in  std_logic;
-            hours   : out unsigned(4 downto 0);
-            minutes : out unsigned(5 downto 0);
-            seconds : out unsigned(5 downto 0)
+            hours   : out unsigned(7 downto 0);
+            minutes : out unsigned(7 downto 0);
+            seconds : out unsigned(7 downto 0)
         );
     end component;
 
@@ -197,9 +197,9 @@ architecture structural of DE2_115_TOP is
 
     -- Timer signals
     signal timer_stop    : std_logic;
-    signal timer_hours   : unsigned(4 downto 0);
-    signal timer_minutes : unsigned(5 downto 0);
-    signal timer_seconds : unsigned(5 downto 0);
+    signal timer_hours   : unsigned(7 downto 0);
+    signal timer_minutes : unsigned(7 downto 0);
+    signal timer_seconds : unsigned(7 downto 0);
 
     -- NEW: Random seed signal
     signal random_seed : std_logic_vector(6 downto 0);
@@ -345,7 +345,7 @@ begin
             blue       => blue_int
         );
 
-    U7 : GAME_TIMER
+   U7 : GAME_TIMER
         generic map (
             TICKS_PER_SECOND => TICKS_PER_SECOND
         )
@@ -360,27 +360,27 @@ begin
 
     -- HEX displays: HH:MM:SS across HEX7..HEX2
     U8 : SEG7_DECODER port map (
-        digit => timer_seconds(3 downto 0),
+        digit => timer_seconds(3 downto 0), -- Seconds Ones
         seg   => HEX2
     );
     U9 : SEG7_DECODER port map (
-        digit => "00" & timer_seconds(5 downto 4),
+        digit => timer_seconds(7 downto 4), -- Seconds Tens
         seg   => HEX3
     );
     U10 : SEG7_DECODER port map (
-        digit => timer_minutes(3 downto 0),
+        digit => timer_minutes(3 downto 0), -- Minutes Ones
         seg   => HEX4
     );
     U11 : SEG7_DECODER port map (
-        digit => "00" & timer_minutes(5 downto 4),
+        digit => timer_minutes(7 downto 4), -- Minutes Tens
         seg   => HEX5
     );
     U12 : SEG7_DECODER port map (
-        digit => timer_hours(3 downto 0),
+        digit => timer_hours(3 downto 0),   -- Hours Ones
         seg   => HEX6
     );
     U13 : SEG7_DECODER port map (
-        digit => "000" & timer_hours(4 downto 4),
+        digit => timer_hours(7 downto 4),   -- Hours Tens
         seg   => HEX7
     );
 
