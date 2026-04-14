@@ -144,6 +144,27 @@ architecture structural of DE2_115_TOP is
         );
     end component;
 
+    component GAME_TIMER
+        generic (
+            TICKS_PER_SECOND : natural := 50_000_000
+        );
+        port (
+            clk     : in  std_logic;
+            reset   : in  std_logic;
+            stop    : in  std_logic;
+            hours   : out unsigned(4 downto 0);
+            minutes : out unsigned(5 downto 0);
+            seconds : out unsigned(5 downto 0)
+        );
+    end component;
+
+    component SEG7_DECODER
+        port (
+            digit : in  unsigned(3 downto 0);
+            seg   : out std_logic_vector(6 downto 0)
+        );
+    end component;
+
     signal sys_reset  : std_logic;
     signal game_reset : std_logic;
 
@@ -173,11 +194,20 @@ architecture structural of DE2_115_TOP is
     signal flag_key   : std_logic;
     signal kbd_reset  : std_logic;
 
+    -- Timer signals
+    signal timer_stop    : std_logic;
+    signal timer_hours   : unsigned(4 downto 0);
+    signal timer_minutes : unsigned(5 downto 0);
+    signal timer_seconds : unsigned(5 downto 0);
+
 begin
 
     -- Reset
     sys_reset  <= not KEY(0);
     game_reset <= sys_reset or kbd_reset;
+
+    -- Timer stops on win or loss
+    timer_stop <= game_over or game_won;
 
     -- VGA outputs from internal signals
     VGA_CLK     <= pixel_clk;
@@ -186,14 +216,8 @@ begin
 
     -- Tie off unused outputs
     SMA_CLKOUT  <= '0';
-    HEX0        <= (others => '1');
-    HEX1        <= (others => '1');
-    HEX2        <= (others => '1');
-    HEX3        <= (others => '1');
-    HEX4        <= (others => '1');
-    HEX5        <= (others => '1');
-    HEX6        <= (others => '1');
-    HEX7        <= (others => '1');
+    HEX0        <= (others => '1');  -- unused
+    HEX1        <= (others => '1');  -- unused
     UART_CTS    <= '0';
     UART_TXD    <= '0';
     LCD_BLON    <= '0';
@@ -301,5 +325,50 @@ begin
             green      => green_int,
             blue       => blue_int
         );
+
+    U7 : GAME_TIMER
+        generic map (
+            TICKS_PER_SECOND => TICKS_PER_SECOND
+        )
+        port map (
+            clk     => CLOCK_50,
+            reset   => game_reset,
+            stop    => timer_stop,
+            hours   => timer_hours,
+            minutes => timer_minutes,
+            seconds => timer_seconds
+        );
+
+    -- HEX displays: HH:MM:SS across HEX7..HEX2
+    -- Seconds units
+    U8 : SEG7_DECODER port map (
+        digit => timer_seconds(3 downto 0),
+        seg   => HEX2
+    );
+    -- Seconds tens (0-5, so upper bit always 0)
+    U9 : SEG7_DECODER port map (
+        digit => "0" & timer_seconds(5 downto 4),
+        seg   => HEX3
+    );
+    -- Minutes units
+    U10 : SEG7_DECODER port map (
+        digit => timer_minutes(3 downto 0),
+        seg   => HEX4
+    );
+    -- Minutes tens
+    U11 : SEG7_DECODER port map (
+        digit => "0" & timer_minutes(5 downto 4),
+        seg   => HEX5
+    );
+    -- Hours units
+    U12 : SEG7_DECODER port map (
+        digit => timer_hours(3 downto 0),
+        seg   => HEX6
+    );
+    -- Hours tens
+    U13 : SEG7_DECODER port map (
+        digit => "0" & timer_hours(4 downto 4),
+        seg   => HEX7
+    );
 
 end structural;
