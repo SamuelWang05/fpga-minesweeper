@@ -158,6 +158,7 @@ architecture structural of DE2_115_TOP is
         );
     end component;
 
+    -- FIX: Changed name from SEG7_CODER to SEG7_DECODER to match port maps and entity file
     component SEG7_DECODER
         port (
             digit : in  unsigned(3 downto 0);
@@ -340,34 +341,34 @@ begin
         );
 
     -- HEX displays: HH:MM:SS across HEX7..HEX2
-    -- Seconds units
+    -- Seconds units (4 bits)
     U8 : SEG7_DECODER port map (
         digit => timer_seconds(3 downto 0),
         seg   => HEX2
     );
-    -- Seconds tens (0-5, so upper bit always 0)
+    -- Seconds tens (2 bits + "00" padding = 4 bits)
     U9 : SEG7_DECODER port map (
-        digit => "0" & timer_seconds(5 downto 4),
+        digit => "00" & timer_seconds(5 downto 4),
         seg   => HEX3
     );
-    -- Minutes units
+    -- Minutes units (4 bits)
     U10 : SEG7_DECODER port map (
         digit => timer_minutes(3 downto 0),
         seg   => HEX4
     );
-    -- Minutes tens
+    -- Minutes tens (2 bits + "00" padding = 4 bits)
     U11 : SEG7_DECODER port map (
-        digit => "0" & timer_minutes(5 downto 4),
+        digit => "00" & timer_minutes(5 downto 4),
         seg   => HEX5
     );
-    -- Hours units
+    -- Hours units (4 bits)
     U12 : SEG7_DECODER port map (
         digit => timer_hours(3 downto 0),
         seg   => HEX6
     );
-    -- Hours tens
+    -- Hours tens (1 bit + "000" padding = 4 bits)
     U13 : SEG7_DECODER port map (
-        digit => "0" & timer_hours(4 downto 4),
+        digit => "000" & timer_hours(4 downto 4),
         seg   => HEX7
     );
 
