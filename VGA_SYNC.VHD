@@ -118,13 +118,21 @@ BEGIN
 -- Put all video signals through DFFs to elminate any small timing delays that cause a blurry image
 		horiz_sync_out <= horiz_sync;
 		vert_sync_out <= vert_sync;
+		
+-- 		Also turn off RGB color signals at edge of screen during vertical and horizontal retrace
+		if video_on_int = '1' then
+					red_out   <= red;
+					green_out <= green;
+					blue_out  <= blue;
+				else
+					red_out   <= (others => '0');
+					green_out <= (others => '0');
+					blue_out  <= (others => '0');
+				end if;
 
 END PROCESS;
 
--- 		Also turn off RGB color signals at edge of screen during vertical and horizontal retrace
-		red_out <= red when video_on_int = '1' else (others => '0');
-		green_out <= green when video_on_int = '1' else (others => '0');
-		blue_out <= blue when video_on_int = '1' else (others => '0');
+
 
 END a;
 
