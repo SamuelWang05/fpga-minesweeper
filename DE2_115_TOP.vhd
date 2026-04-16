@@ -239,8 +239,8 @@ begin
 
     -- Tie off unused outputs
     SMA_CLKOUT  <= '0';
-    HEX0        <= (others => '1');  -- unused
-    HEX1        <= (others => '1');  -- unused
+    HEX3        <= (others => '1');  -- unused
+    HEX7        <= (others => '1');  -- unused
     UART_CTS    <= '0';
     UART_TXD    <= '0';
     LCD_BLON    <= '0';
