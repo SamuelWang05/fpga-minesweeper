@@ -368,11 +368,11 @@ begin
     );
 
     -- HEX displays: HH:MM:SS across HEX7..HEX2
-    U8  : SEG7_DECODER port map (digit => sec_ones,      seg => HEX2);
-    U9  : SEG7_DECODER port map (digit => sec_tens,      seg => HEX3);
-    U10 : SEG7_DECODER port map (digit => sec_hundreds,  seg => HEX4);
-    U11 : SEG7_DECODER port map (digit => best_ones,     seg => HEX5);
-    U12 : SEG7_DECODER port map (digit => best_tens,     seg => HEX6);
-    U13 : SEG7_DECODER port map (digit => best_hundreds, seg => HEX7);
+    U8  : SEG7_DECODER port map (digit => sec_ones,      seg => HEX0);
+    U9  : SEG7_DECODER port map (digit => sec_tens,      seg => HEX1);
+    U10 : SEG7_DECODER port map (digit => sec_hundreds,  seg => HEX2);
+    U11 : SEG7_DECODER port map (digit => best_ones,     seg => HEX4);
+    U12 : SEG7_DECODER port map (digit => best_tens,     seg => HEX5);
+    U13 : SEG7_DECODER port map (digit => best_hundreds, seg => HEX6);
 
 end structural;
