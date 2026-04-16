@@ -7,96 +7,105 @@ entity GAME_TIMER is
         TICKS_PER_SECOND : natural := 50_000_000
     );
     port (
-        clk       : in  std_logic;
-        reset     : in  std_logic;
-        game_over : in  std_logic;
-        game_won  : in  std_logic;
-        hours     : out unsigned(7 downto 0);
-        minutes   : out unsigned(7 downto 0);
-        seconds   : out unsigned(7 downto 0);
-        high_score : out unsigned(16 downto 0)  -- best time in seconds only
+        clk           : in  std_logic;
+        reset         : in  std_logic;
+        game_over     : in  std_logic;
+        game_won      : in  std_logic;
+        -- Current time digits (outputs to HEX display)
+        sec_ones      : out unsigned(3 downto 0);
+        sec_tens      : out unsigned(3 downto 0);
+        sec_hundreds  : out unsigned(3 downto 0);
+        -- Best time digits (outputs to HEX display)
+        best_ones     : out unsigned(3 downto 0);
+        best_tens     : out unsigned(3 downto 0);
+        best_hundreds : out unsigned(3 downto 0)
     );
 end GAME_TIMER;
 
 architecture behavioral of GAME_TIMER is
-    signal tick_count : natural range 0 to TICKS_PER_SECOND - 1 := 0;
 
-    signal sec_ones, sec_tens : unsigned(3 downto 0) := (others => '0');
-    signal min_ones, min_tens : unsigned(3 downto 0) := (others => '0');
-    signal hr_ones,  hr_tens  : unsigned(3 downto 0) := (others => '0');
+    signal tick_count    : natural range 0 to TICKS_PER_SECOND - 1 := 0;
 
-    -- Convert current time to a flat second count for easy comparison
-    signal best_seconds       : unsigned(16 downto 0) := (others => '1'); -- init to max so any time beats it
+    -- Current time BCD digits
+    signal sec_ones_r     : unsigned(3 downto 0) := (others => '0');
+    signal sec_tens_r     : unsigned(3 downto 0) := (others => '0');
+    signal sec_hundreds_r : unsigned(3 downto 0) := (others => '0');
 
-    signal game_won_prev      : std_logic := '0'; -- edge detector
+    -- Best time BCD digits (init to 9 so any real time beats it)
+    signal best_ones_r     : unsigned(3 downto 0) := (others => '1');
+    signal best_tens_r     : unsigned(3 downto 0) := (others => '1');
+    signal best_hundreds_r : unsigned(3 downto 0) := (others => '1');
+
+    signal game_won_prev : std_logic := '0';
 
 begin
 
-    seconds <= sec_tens & sec_ones;
-    minutes <= min_tens & min_ones;
-    hours   <= hr_tens  & hr_ones;
-
-    -- Expose only the low 8 bits of best_seconds for display
-    -- (enough to show 0-255 seconds; expand if you want minutes)
-    high_score <= best_seconds;
+    -- Wire internal registers to outputs
+    sec_ones      <= sec_ones_r;
+    sec_tens      <= sec_tens_r;
+    sec_hundreds  <= sec_hundreds_r;
+    best_ones     <= best_ones_r;
+    best_tens     <= best_tens_r;
+    best_hundreds <= best_hundreds_r;
 
     process(clk)
-       variable current_time : unsigned(16 downto 0);
     begin
         if rising_edge(clk) then
-            game_won_prev <= game_won;  -- register previous value for edge detect
+            game_won_prev <= game_won;
 
             if reset = '1' then
-                tick_count <= 0;
-                sec_ones   <= (others => '0'); sec_tens <= (others => '0');
-                min_ones   <= (others => '0'); min_tens <= (others => '0');
-                hr_ones    <= (others => '0'); hr_tens  <= (others => '0');
+                tick_count      <= 0;
+                sec_ones_r      <= (others => '0');
+                sec_tens_r      <= (others => '0');
+                sec_hundreds_r  <= (others => '0');
+                -- best_*_r intentionally NOT reset so high score persists
 
             elsif game_won = '1' and game_won_prev = '0' then
-                -- Compute flat second count from current BCD time
-                current_time :=
-						resize(resize(hr_tens,  17) * to_unsigned(36000, 17), 17) +
-						resize(resize(hr_ones,  17) * to_unsigned( 3600, 17), 17) +
-						resize(resize(min_tens, 17) * to_unsigned(  600, 17), 17) +
-						resize(resize(min_ones, 17) * to_unsigned(   60, 17), 17) +
-						resize(resize(sec_tens, 17) * to_unsigned(   10, 17), 17) +
-						resize(sec_ones, 17);
-						
-                if current_time < best_seconds then
-                    best_seconds <= current_time;
+                -- Compare BCD digits directly, no multiplication needed
+                -- Check hundreds first, then tens, then ones
+                if sec_hundreds_r < best_hundreds_r then
+                    best_hundreds_r <= sec_hundreds_r;
+                    best_tens_r     <= sec_tens_r;
+                    best_ones_r     <= sec_ones_r;
+
+                elsif sec_hundreds_r = best_hundreds_r then
+                    if sec_tens_r < best_tens_r then
+                        best_hundreds_r <= sec_hundreds_r;
+                        best_tens_r     <= sec_tens_r;
+                        best_ones_r     <= sec_ones_r;
+
+                    elsif sec_tens_r = best_tens_r then
+                        if sec_ones_r < best_ones_r then
+                            best_hundreds_r <= sec_hundreds_r;
+                            best_tens_r     <= sec_tens_r;
+                            best_ones_r     <= sec_ones_r;
+                        end if;
+                    end if;
                 end if;
+
             elsif game_over = '0' and game_won = '0' then
+                -- Timer counting
                 if tick_count = TICKS_PER_SECOND - 1 then
                     tick_count <= 0;
 
-                    if sec_ones = 9 then
-                        sec_ones <= (others => '0');
-                        if sec_tens = 5 then
-                            sec_tens <= (others => '0');
-                            if min_ones = 9 then
-                                min_ones <= (others => '0');
-                                if min_tens = 5 then
-                                    min_tens <= (others => '0');
-                                    if hr_tens = 2 and hr_ones = 3 then
-                                        hr_ones <= (others => '0');
-                                        hr_tens <= (others => '0');
-                                    elsif hr_ones = 9 then
-                                        hr_ones <= (others => '0');
-                                        hr_tens <= hr_tens + 1;
-                                    else
-                                        hr_ones <= hr_ones + 1;
-                                    end if;
-                                else
-                                    min_tens <= min_tens + 1;
-                                end if;
+                    if sec_ones_r = 9 then
+                        sec_ones_r <= (others => '0');
+
+                        if sec_tens_r = 9 then
+                            sec_tens_r <= (others => '0');
+
+                            if sec_hundreds_r = 9 then
+                                sec_hundreds_r <= "1001"; -- stay at 9
                             else
-                                min_ones <= min_ones + 1;
+                                sec_hundreds_r <= sec_hundreds_r + 1;
                             end if;
+
                         else
-                            sec_tens <= sec_tens + 1;
+                            sec_tens_r <= sec_tens_r + 1;
                         end if;
+
                     else
-                        sec_ones <= sec_ones + 1;
+                        sec_ones_r <= sec_ones_r + 1;
                     end if;
 
                 else

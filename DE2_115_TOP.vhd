@@ -150,14 +150,16 @@ architecture structural of DE2_115_TOP is
             TICKS_PER_SECOND : natural := 50_000_000
         );
         port (
-            clk       : in  std_logic;
-            reset     : in  std_logic;
-            game_over : in  std_logic;
-            game_won  : in  std_logic;
-            hours     : out unsigned(7 downto 0);
-            minutes   : out unsigned(7 downto 0);
-            seconds   : out unsigned(7 downto 0);
-            high_score : out unsigned(16 downto 0)
+            clk           : in  std_logic;
+            reset         : in  std_logic;
+            game_over     : in  std_logic;
+            game_won      : in  std_logic;
+            sec_ones      : out unsigned(3 downto 0);
+            sec_tens      : out unsigned(3 downto 0);
+            sec_hundreds  : out unsigned(3 downto 0);
+            best_ones     : out unsigned(3 downto 0);
+            best_tens     : out unsigned(3 downto 0);
+            best_hundreds : out unsigned(3 downto 0)
         );
     end component;
 
@@ -198,10 +200,12 @@ architecture structural of DE2_115_TOP is
     signal kbd_reset  : std_logic;
 
     -- Timer signals
-    signal timer_hours   : unsigned(7 downto 0);
-    signal timer_minutes : unsigned(7 downto 0);
-    signal timer_seconds : unsigned(7 downto 0);
-    signal best_seconds  : unsigned(16 downto 0); -- for high score tracking
+    signal sec_ones      : unsigned(3 downto 0);
+    signal sec_tens      : unsigned(3 downto 0);
+    signal sec_hundreds  : unsigned(3 downto 0);
+    signal best_ones     : unsigned(3 downto 0);
+    signal best_tens     : unsigned(3 downto 0);
+    signal best_hundreds : unsigned(3 downto 0);
 
     -- NEW: Random seed signal
     signal random_seed : std_logic_vector(6 downto 0);
@@ -347,44 +351,28 @@ begin
         );
 
    U7 : GAME_TIMER
-        generic map (
-            TICKS_PER_SECOND => TICKS_PER_SECOND
-        )
-        port map (
-            clk     => CLOCK_50,
-            reset   => game_reset,
-            game_over => game_over,
-            game_won  => game_won,
-            hours   => timer_hours,
-            minutes => timer_minutes,
-            seconds => timer_seconds,
-            high_score => best_seconds
-        );
+    generic map (
+        TICKS_PER_SECOND => TICKS_PER_SECOND
+    )
+    port map (
+        clk           => CLOCK_50,
+        reset         => game_reset,
+        game_over     => game_over,
+        game_won      => game_won,
+        sec_ones      => sec_ones,
+        sec_tens      => sec_tens,
+        sec_hundreds  => sec_hundreds,
+        best_ones     => best_ones,
+        best_tens     => best_tens,
+        best_hundreds => best_hundreds
+    );
 
     -- HEX displays: HH:MM:SS across HEX7..HEX2
-    U8 : SEG7_DECODER port map (
-        digit => timer_seconds(3 downto 0), -- Seconds Ones
-        seg   => HEX2
-    );
-    U9 : SEG7_DECODER port map (
-        digit => timer_seconds(7 downto 4), -- Seconds Tens
-        seg   => HEX3
-    );
-    U10 : SEG7_DECODER port map (
-        digit => timer_minutes(3 downto 0), -- Minutes Ones
-        seg   => HEX4
-    );
-    U11 : SEG7_DECODER port map (
-        digit => timer_minutes(7 downto 4), -- Minutes Tens
-        seg   => HEX5
-    );
-    U12 : SEG7_DECODER port map (
-        digit => timer_hours(3 downto 0),   -- Hours Ones
-        seg   => HEX6
-    );
-    U13 : SEG7_DECODER port map (
-        digit => timer_hours(7 downto 4),   -- Hours Tens
-        seg   => HEX7
-    );
+    U8  : SEG7_DECODER port map (digit => sec_ones,      seg => HEX2);
+    U9  : SEG7_DECODER port map (digit => sec_tens,      seg => HEX3);
+    U10 : SEG7_DECODER port map (digit => sec_hundreds,  seg => HEX4);
+    U11 : SEG7_DECODER port map (digit => best_ones,     seg => HEX5);
+    U12 : SEG7_DECODER port map (digit => best_tens,     seg => HEX6);
+    U13 : SEG7_DECODER port map (digit => best_hundreds, seg => HEX7);
 
 end structural;
